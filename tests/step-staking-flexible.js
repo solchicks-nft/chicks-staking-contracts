@@ -5,7 +5,7 @@ const utils = require('./utils');
 const assert = require('assert');
 const fs = require('fs');
 
-let program = anchor.workspace.ChicksStaking;
+let program = anchor.workspace.ChicksStakingFlexible;
 
 //Read the provider from the configured environmnet.
 //represents an outside actor

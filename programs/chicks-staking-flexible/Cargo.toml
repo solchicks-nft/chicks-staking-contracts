@@ -1,12 +1,12 @@
 [package]
-name = "chicks-staking"
+name = "chicks-staking-flexible"
 version = "0.1.0"
 description = "Created with Anchor"
 edition = "2018"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "chicks_staking"
+name = "chicks_staking_flexible"
 
 [features]
 no-entrypoint = []

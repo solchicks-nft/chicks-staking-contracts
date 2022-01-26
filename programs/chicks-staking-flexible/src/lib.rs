@@ -29,22 +29,32 @@ pub mod chicks_staking {
         ctx: Context<Initialize>,
         _nonce_vault: u8,
         _nonce_staking: u8,
-        lock_end_date: u64,
-        fee_percent: u64
+        lock_time: u64,
+        fee_percent: u16
     ) -> ProgramResult {
         ctx.accounts.staking_account.initializer_key = *ctx.accounts.initializer.key;
-        ctx.accounts.staking_account.lock_end_date = lock_end_date;
+        ctx.accounts.staking_account.lock_time = lock_time;
         ctx.accounts.staking_account.fee_percent = fee_percent;
 
         Ok(())
     }
 
-    pub fn update_lock_end_date(
-        ctx: Context<UpdateLockEndDate>,
+    pub fn update_lock_time(
+        ctx: Context<UpdateStakingAccountField>,
         _nonce_staking: u8,
-        new_lock_end_date: u64,
+        new_lock_time: u64,
     ) -> ProgramResult {
-        ctx.accounts.staking_account.lock_end_date = new_lock_end_date;
+        ctx.accounts.staking_account.lock_time = new_lock_time;
+
+        Ok(())
+    }
+
+    pub fn update_fee_percent(
+        ctx: Context<UpdateStakingAccountField>,
+        _nonce_staking: u8,
+        new_fee_percent: u16,
+    ) -> ProgramResult {
+        ctx.accounts.staking_account.fee_percent = new_fee_percent;
 
         Ok(())
     }
@@ -317,6 +327,7 @@ pub struct Initialize<'info> {
     payer = initializer,
     seeds = [ constants::STAKING_PDA_SEED.as_ref() ],
     bump = _nonce_staking,
+    space = 8 + STAKE_DATA_SIZE
     )]
     pub staking_account: Account<'info, StakingAccount>,
 
@@ -332,7 +343,7 @@ pub struct Initialize<'info> {
 
 #[derive(Accounts)]
 #[instruction(_nonce_staking: u8)]
-pub struct UpdateLockEndDate<'info> {
+pub struct UpdateStakingAccountField<'info> {
     pub initializer: Signer<'info>,
 
     #[account(
@@ -359,7 +370,7 @@ pub struct FreezeProgram<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(_nonce_vault: u8, _nonce_staking: u8, _nonce_user_staking: u8)]
+#[instruction(_nonce_vault: u8, _nonce_staking: u8, _nonce_user_staking: u8, handle: [u8; 16])]
 pub struct Stake<'info> {
     #[account(
     address = constants::STEP_TOKEN_MINT_PUBKEY.parse::<Pubkey>().unwrap(),
@@ -391,8 +402,9 @@ pub struct Stake<'info> {
     #[account(
     init_if_needed,
     payer = token_from_authority,
-    seeds = [ token_from_authority.key().as_ref() ],
+    seeds = [ token_from_authority.key().as_ref(), handle ],
     bump = _nonce_user_staking,
+    space = 8 + USER_STAKE_DATA_SIZE
     )]
     pub user_staking_account: Account<'info, UserStakingAccount>,
 
@@ -490,20 +502,25 @@ pub struct EmitReward<'info> {
     pub user_staking_account: Account<'info, UserStakingAccount>,
 }
 
+pub const STAKE_DATA_SIZE : usize = 51; // 32 + 8 + 8 + 1 + 2;
+
 #[account]
 #[derive(Default)]
 pub struct StakingAccount {
     pub initializer_key: Pubkey,
-    pub lock_end_date: u64,
+    pub lock_time: u64,
     pub total_x_token: u64,
     pub freeze_program: bool,
-    pub fee_percent: u64,
+    pub fee_percent: u16,
 }
+
+pub const USER_STAKE_DATA_SIZE : usize = 24; // 8 + 8
 
 #[account]
 #[derive(Default)]
 pub struct UserStakingAccount {
     pub amount: u64,
+    pub start_time: u64,
     pub x_token_amount: u64,
 }
 
