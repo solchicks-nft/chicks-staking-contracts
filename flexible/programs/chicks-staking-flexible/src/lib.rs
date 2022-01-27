@@ -5,9 +5,9 @@ use anchor_spl::token::{self, Mint, Token, TokenAccount};
 use std::convert::TryInto;
 
 #[cfg(not(feature = "local-testing"))]
-declare_id!("5YbWH2No2FqX9g9SyigUhbLZWq4H3F3C2rfiQYHhWU3p");
+declare_id!("3S4DFkiY7fLjZ8mjU5ShK2qgVR2Yfzr3pR8JpeBsbyR8");
 #[cfg(feature = "local-testing")]
-declare_id!("5YbWH2No2FqX9g9SyigUhbLZWq4H3F3C2rfiQYHhWU3p");
+declare_id!("3S4DFkiY7fLjZ8mjU5ShK2qgVR2Yfzr3pR8JpeBsbyR8");
 
 #[cfg(not(feature = "local-testing"))]
 pub mod constants {
@@ -22,27 +22,39 @@ pub mod constants {
 }
 
 #[program]
-pub mod chicks_staking_locked {
+pub mod chicks_staking_flexible {
     use super::*;
 
     pub fn initialize(
         ctx: Context<Initialize>,
         _nonce_vault: u8,
         _nonce_staking: u8,
-        lock_end_date: u64
+        lock_time: u64,
+        fee_percent: u16
     ) -> ProgramResult {
         ctx.accounts.staking_account.initializer_key = *ctx.accounts.initializer.key;
-        ctx.accounts.staking_account.lock_end_date = lock_end_date;
+        ctx.accounts.staking_account.lock_time = lock_time;
+        ctx.accounts.staking_account.fee_percent = fee_percent;
 
         Ok(())
     }
 
-    pub fn update_lock_end_date(
+    pub fn update_lock_time(
         ctx: Context<UpdateStakingAccountField>,
         _nonce_staking: u8,
-        new_lock_end_date: u64,
+        new_lock_time: u64,
     ) -> ProgramResult {
-        ctx.accounts.staking_account.lock_end_date = new_lock_end_date;
+        ctx.accounts.staking_account.lock_time = new_lock_time;
+
+        Ok(())
+    }
+
+    pub fn update_fee_percent(
+        ctx: Context<UpdateStakingAccountField>,
+        _nonce_staking: u8,
+        new_fee_percent: u16,
+    ) -> ProgramResult {
+        ctx.accounts.staking_account.fee_percent = new_fee_percent;
 
         Ok(())
     }
@@ -58,11 +70,14 @@ pub mod chicks_staking_locked {
         _nonce_vault: u8,
         _nonce_staking: u8,
         _nonce_user_staking: u8,
+        handle: String,
         amount: u64,
     ) -> ProgramResult {
         let total_token = ctx.accounts.token_vault.amount;
         let total_x_token = ctx.accounts.staking_account.total_x_token;
         let old_price = get_price(&ctx.accounts.token_vault, &ctx.accounts.staking_account);
+        let now_ts = Clock::get().unwrap().unix_timestamp;
+        ctx.accounts.user_staking_account.start_time = now_ts as u64;
 
         //mint x tokens
         if total_token == 0 || total_x_token == 0 {
@@ -139,14 +154,12 @@ pub mod chicks_staking_locked {
         nonce_vault: u8,
         _nonce_staking: u8,
         _nonce_user_staking: u8,
+        handle: String,
         amount: u64,
     ) -> ProgramResult {
         let now_ts = Clock::get().unwrap().unix_timestamp;
-        let lock_end_date = ctx.accounts.staking_account.lock_end_date;
-
-        if (now_ts as u64) < lock_end_date {
-            return Err(ErrorCode::NotExceedLockEndDate.into());
-        }
+        let lock_time = ctx.accounts.staking_account.lock_time;
+        let start_time = ctx.accounts.user_staking_account.start_time;
 
         let total_token = ctx.accounts.token_vault.amount;
         let total_x_token = ctx.accounts.staking_account.total_x_token;
@@ -159,22 +172,29 @@ pub mod chicks_staking_locked {
             .unwrap()
             .try_into()
             .unwrap();
-        ctx.accounts.user_staking_account.x_token_amount =
-            (ctx.accounts.user_staking_account.x_token_amount as u128)
-                .checked_sub(amount as u128)
-                .unwrap()
-                .try_into()
-                .unwrap();
+        ctx.accounts.user_staking_account.x_token_amount = 0;
 
-        //determine user share of vault
-        let what: u64 = (amount as u128)
+        let mut what:u64 = (amount as u128)
             .checked_mul(total_token as u128)
             .unwrap()
             .checked_div(total_x_token as u128)
             .unwrap()
             .try_into()
             .unwrap();
+        if (now_ts as u64) < (start_time + lock_time) {
+            let fee_amount: u64 = (what as u128)
+                .checked_mul(ctx.accounts.staking_account.fee_percent as u128)
+                .unwrap()
+                .checked_div(1000 as u128)
+                .unwrap()
+                .try_into()
+                .unwrap();
 
+            what = (what as u128).checked_sub(fee_amount as u128)
+                .unwrap()
+                .try_into()
+                .unwrap();
+        }
         //compute vault signer seeds
         let token_mint_key = ctx.accounts.token_mint.key();
         let seeds = &[token_mint_key.as_ref(), &[nonce_vault]];
@@ -195,24 +215,29 @@ pub mod chicks_staking_locked {
         (&mut ctx.accounts.token_vault).reload()?;
 
         //determine user staking amount
-        let new_total_token = ctx.accounts.token_vault.amount;
-        let new_total_x_token = ctx.accounts.staking_account.total_x_token;
+        // let new_total_token = ctx.accounts.token_vault.amount;
+        // let new_total_x_token = ctx.accounts.staking_account.total_x_token;
 
-        if new_total_token == 0 || new_total_x_token == 0 {
-            ctx.accounts.user_staking_account.amount = 0;
-        } else {
-            let new_what: u64 = (ctx.accounts.user_staking_account.x_token_amount as u128)
-                .checked_mul(new_total_token as u128)
-                .unwrap()
-                .checked_div(new_total_x_token as u128)
-                .unwrap()
-                .try_into()
-                .unwrap();
-
-            if new_what < ctx.accounts.user_staking_account.amount {
-                ctx.accounts.user_staking_account.amount = new_what;
-            }
-        }
+        ctx.accounts.user_staking_account.amount = 0;
+        // if new_total_token == 0 || new_total_x_token == 0 {
+        //     ctx.accounts.user_staking_account.amount = 0;
+        // } else {
+        //     if (now_ts as u64) < lock_end_date {
+        //         ctx.accounts.user_staking_account.amount = ctx.accounts.user_staking_account.x_token_amount;
+        //     } else {
+        //         let new_what: u64 = (ctx.accounts.user_staking_account.x_token_amount as u128)
+        //             .checked_mul(new_total_token as u128)
+        //             .unwrap()
+        //             .checked_div(new_total_x_token as u128)
+        //             .unwrap()
+        //             .try_into()
+        //             .unwrap();
+        //
+        //         if new_what < ctx.accounts.user_staking_account.amount {
+        //             ctx.accounts.user_staking_account.amount = new_what;
+        //         }
+        //     }
+        // }
 
         let new_price = get_price(&ctx.accounts.token_vault, &ctx.accounts.staking_account);
 
@@ -345,8 +370,17 @@ pub struct FreezeProgram<'info> {
     pub staking_account: Account<'info, StakingAccount>,
 }
 
+fn name_seed(name: &str) -> &[u8] {
+    let b = name.as_bytes();
+    if b.len() > 32 {
+        &b[0..32]
+    } else {
+        b
+    }
+}
+
 #[derive(Accounts)]
-#[instruction(_nonce_vault: u8, _nonce_staking: u8, _nonce_user_staking: u8)]
+#[instruction(_nonce_vault: u8, _nonce_staking: u8, _nonce_user_staking: u8, handle: String)]
 pub struct Stake<'info> {
     #[account(
     address = constants::STEP_TOKEN_MINT_PUBKEY.parse::<Pubkey>().unwrap(),
@@ -378,7 +412,7 @@ pub struct Stake<'info> {
     #[account(
     init_if_needed,
     payer = token_from_authority,
-    seeds = [ token_from_authority.key().as_ref() ],
+    seeds = [ token_from_authority.key().as_ref(), name_seed(&handle) ],
     bump = _nonce_user_staking,
     space = 8 + USER_STAKE_DATA_SIZE
     )]
@@ -390,7 +424,7 @@ pub struct Stake<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(nonce_vault: u8, _nonce_staking: u8, _nonce_user_staking: u8, amount: u64)]
+#[instruction(nonce_vault: u8, _nonce_staking: u8, _nonce_user_staking: u8, handle: String, amount: u64)]
 pub struct Unstake<'info> {
     #[account(
     address = constants::STEP_TOKEN_MINT_PUBKEY.parse::<Pubkey>().unwrap(),
@@ -417,9 +451,10 @@ pub struct Unstake<'info> {
 
     #[account(
     mut,
-    seeds = [ x_token_from_authority.key().as_ref() ],
+    seeds = [ x_token_from_authority.key().as_ref(), name_seed(&handle) ],
     bump = _nonce_user_staking,
-    constraint = user_staking_account.x_token_amount >= amount
+    constraint = user_staking_account.x_token_amount == amount,
+    close=x_token_from_authority
     )]
     pub user_staking_account: Account<'info, UserStakingAccount>,
 
@@ -478,23 +513,25 @@ pub struct EmitReward<'info> {
     pub user_staking_account: Account<'info, UserStakingAccount>,
 }
 
-pub const STAKE_DATA_SIZE : usize = 49; // 32 + 8 + 8 + 1;
+pub const STAKE_DATA_SIZE : usize = 51; // 32 + 8 + 8 + 1 + 2;
 
 #[account]
 #[derive(Default)]
 pub struct StakingAccount {
     pub initializer_key: Pubkey,
-    pub lock_end_date: u64,
+    pub lock_time: u64,
     pub total_x_token: u64,
     pub freeze_program: bool,
+    pub fee_percent: u16,
 }
 
-pub const USER_STAKE_DATA_SIZE : usize = 16; // 8 + 8
+pub const USER_STAKE_DATA_SIZE : usize = 24; // 8 + 8
 
 #[account]
 #[derive(Default)]
 pub struct UserStakingAccount {
     pub amount: u64,
+    pub start_time: u64,
     pub x_token_amount: u64,
 }
 
