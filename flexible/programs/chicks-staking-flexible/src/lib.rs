@@ -5,9 +5,9 @@ use anchor_spl::token::{self, Mint, Token, TokenAccount};
 use std::convert::TryInto;
 
 #[cfg(not(feature = "local-testing"))]
-declare_id!("3S4DFkiY7fLjZ8mjU5ShK2qgVR2Yfzr3pR8JpeBsbyR8");
+declare_id!("uNophHm1nQzwyfdQ23QSebaNEZqnwfSa5oNH6SmnDoD");
 #[cfg(feature = "local-testing")]
-declare_id!("3S4DFkiY7fLjZ8mjU5ShK2qgVR2Yfzr3pR8JpeBsbyR8");
+declare_id!("uNophHm1nQzwyfdQ23QSebaNEZqnwfSa5oNH6SmnDoD");
 
 #[cfg(not(feature = "local-testing"))]
 pub mod constants {

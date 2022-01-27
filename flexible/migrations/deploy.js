@@ -26,9 +26,17 @@ module.exports = async function (provider) {
     [Buffer.from(anchor.utils.bytes.utf8.encode('staking'))],
     program.programId
   )
-  console.log('here1', vaultPubkey.toString(), vaultBump);
-  console.log('here2', stakingPubkey.toString(), stakingBump);
+  console.log('vaultPubkey', vaultPubkey.toString(), vaultBump);
+  console.log('stakingPubkey', stakingPubkey.toString(), stakingBump);
 
+  // try {
+  //   let stakingAccount = await program.account.stakingAccount.fetch(
+  //     stakingPubkey
+  //   );
+  //   console.log('stakingAccount', stakingAccount);
+  // } catch (e) {
+  //   console.log(e);
+  // }
   const lockTime = new anchor.BN(3600 * 24 * 8 * 7) // 8 weeks
   const fee_percent = 250;
 

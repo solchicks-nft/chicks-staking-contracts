@@ -93,7 +93,7 @@ describe('step-staking', async () => {
 
     [stakingPubkey, stakingBump] =
       await anchor.web3.PublicKey.findProgramAddress(
-        [Buffer.from(anchor.utils.bytes.utf8.encode('staking'))],
+        [Buffer.from(anchor.utils.bytes.utf8.encode('staking-flexible'))],
         program.programId
       );
 
@@ -385,7 +385,7 @@ describe('step-staking', async () => {
     await program.rpc.unstake(
       vaultBump,
       stakingBump,
-      userStakingBump,
+      userStakingBump2,
       key2,
       new anchor.BN(200_000_000_000),
       {

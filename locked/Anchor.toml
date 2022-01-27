@@ -9,20 +9,20 @@ members = [
 url = "https://anchor.projectserum.com"
 
 [programs.localnet]
-chicks_staking_locked = "FavGt3Ufp99LGZoY6NwqAeqgyM4XpUiwnsPPrVoHY5Ji"
+chicks_staking_locked = "GL2uhXcjYgvkzL8A4Ki12JVFwCBbD5y65F7ezam7zn47"
 
-[provider]
-cluster = "localnet"
-wallet = "/home/bmstart/work/solana/keys/alice.json"
+#[provider]
+#cluster = "localnet"
+#wallet = "/home/bmstart/work/solana/keys/alice.json"
 
 #[provider]
 #cluster = "mainnet"
 #wallet = "/home/bmstart/work/solana/keys/alice.json"
 
 # for devnet
-#[provider]
-#cluster = "devnet"
-#wallet = "/home/bmstart/work/solana/keys/alice.json"
+[provider]
+cluster = "devnet"
+wallet = "/home/bmstart/work/solana/keys/alice.json"
 
 [scripts]
 test = "mocha -t 1000000 tests/"

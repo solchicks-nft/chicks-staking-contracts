@@ -26,8 +26,17 @@ module.exports = async function (provider) {
     [Buffer.from(anchor.utils.bytes.utf8.encode('staking'))],
     program.programId
   )
-  console.log('here1', vaultPubkey.toString(), vaultBump);
-  console.log('here2', stakingPubkey.toString(), stakingBump);
+  console.log('vaultPubkey', vaultPubkey.toString());
+  console.log('stakingPubkey', stakingPubkey.toString());
+
+  try {
+    let stakingAccount = await program.account.stakingAccount.fetch(
+      stakingPubkey
+    );
+    console.log('stakingAccount', stakingAccount);
+  } catch (e) {
+    console.log(e);
+  }
 
   const lockEndDate = new anchor.BN("1648569600") // 2022-03-30 00:00:00
 
