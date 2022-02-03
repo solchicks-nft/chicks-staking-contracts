@@ -5,13 +5,13 @@ use anchor_spl::token::{self, Mint, Token, TokenAccount};
 use std::convert::TryInto;
 
 #[cfg(not(feature = "local-testing"))]
-declare_id!("uNophHm1nQzwyfdQ23QSebaNEZqnwfSa5oNH6SmnDoD");
+declare_id!("XASp8U7ZSJ9sJfUaMKk5dxuw3Hf4xkLPBcoHZ4seoC1");
 #[cfg(feature = "local-testing")]
-declare_id!("uNophHm1nQzwyfdQ23QSebaNEZqnwfSa5oNH6SmnDoD");
+declare_id!("XASp8U7ZSJ9sJfUaMKk5dxuw3Hf4xkLPBcoHZ4seoC1");
 
 #[cfg(not(feature = "local-testing"))]
 pub mod constants {
-    pub const STEP_TOKEN_MINT_PUBKEY: &str = "FUnRfJAJiTtpSGP9uP5RtFm4QPsYUPTVgSMoYrgVyNzQ";
+    pub const STEP_TOKEN_MINT_PUBKEY: &str = "cxxShYRVcepDudXhe7U62QHvw8uBJoKFifmzggGKVC2";
     pub const STAKING_PDA_SEED: &[u8] = b"staking";
 }
 

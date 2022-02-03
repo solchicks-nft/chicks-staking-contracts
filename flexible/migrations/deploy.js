@@ -13,8 +13,8 @@ module.exports = async function (provider) {
 
   let program = anchor.workspace.ChicksStakingFlexible;
 
-  // let mintPubkey = new anchor.web3.PublicKey("AURYydfxJib1ZkTir1Jn1J9ECYUtjb6rKQVmtYaixWPP");
-  let mintPubkey = new anchor.web3.PublicKey("FUnRfJAJiTtpSGP9uP5RtFm4QPsYUPTVgSMoYrgVyNzQ"); // token address
+  // let mintPubkey = new anchor.web3.PublicKey("FUnRfJAJiTtpSGP9uP5RtFm4QPsYUPTVgSMoYrgVyNzQ"); // token address
+  let mintPubkey = new anchor.web3.PublicKey("cxxShYRVcepDudXhe7U62QHvw8uBJoKFifmzggGKVC2"); // token address
 
   const [vaultPubkey, vaultBump] = await anchor.web3.PublicKey.findProgramAddress(
     [mintPubkey.toBuffer()],

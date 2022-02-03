@@ -9,7 +9,7 @@ members = [
 url = "https://anchor.projectserum.com"
 
 [programs.localnet]
-chicks_staking_flexible = "uNophHm1nQzwyfdQ23QSebaNEZqnwfSa5oNH6SmnDoD"
+chicks_staking_flexible = "XASp8U7ZSJ9sJfUaMKk5dxuw3Hf4xkLPBcoHZ4seoC1"
 
 #[provider]
 #cluster = "localnet"
