@@ -29,6 +29,11 @@ Note: please check if solana is enough (over 6 sol)
 8. anchor migrate
 ```
 
+### test
+```
+anchor test -- --features local-testing,test-id
+```
+
 ### Transfer Token
 #### For dev
 ```

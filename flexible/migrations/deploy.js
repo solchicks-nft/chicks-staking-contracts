@@ -13,8 +13,12 @@ module.exports = async function (provider) {
 
   let program = anchor.workspace.ChicksStakingFlexible;
 
-  // let mintPubkey = new anchor.web3.PublicKey("FUnRfJAJiTtpSGP9uP5RtFm4QPsYUPTVgSMoYrgVyNzQ"); // token address
-  let mintPubkey = new anchor.web3.PublicKey("cxxShYRVcepDudXhe7U62QHvw8uBJoKFifmzggGKVC2"); // token address
+  let mintPubkey;
+  if (program.programId.toString() === 'XASp8U7ZSJ9sJfUaMKk5dxuw3Hf4xkLPBcoHZ4seoC1') {
+    mintPubkey = new anchor.web3.PublicKey("FUnRfJAJiTtpSGP9uP5RtFm4QPsYUPTVgSMoYrgVyNzQ"); // token address
+  } else {
+    mintPubkey = new anchor.web3.PublicKey("cxxShYRVcepDudXhe7U62QHvw8uBJoKFifmzggGKVC2"); // token address
+  }
 
   const [vaultPubkey, vaultBump] = await anchor.web3.PublicKey.findProgramAddress(
     [mintPubkey.toBuffer()],
@@ -26,33 +30,61 @@ module.exports = async function (provider) {
     [Buffer.from(anchor.utils.bytes.utf8.encode('staking'))],
     program.programId
   )
+  console.log('program id', program.programId.toString());
   console.log('vaultPubkey', vaultPubkey.toString(), vaultBump);
   console.log('stakingPubkey', stakingPubkey.toString(), stakingBump);
 
+  console.log('Before');
+  try {
+    let stakingAccount = await program.account.stakingAccount.fetch(
+      stakingPubkey
+    );
+    console.log('stakingAccount', stakingAccount);
+  } catch (e) {
+    console.log(e);
+  }
+
+  // init
+  // const lockTime = new anchor.BN(3600 * 24 * 8 * 7) // 8 weeks
+  // const fee_percent = 250;
+  //
   // try {
-  //   let stakingAccount = await program.account.stakingAccount.fetch(
-  //     stakingPubkey
-  //   );
-  //   console.log('stakingAccount', stakingAccount);
-  // } catch (e) {
+  //   await program.rpc.initialize(vaultBump, stakingBump, lockTime, fee_percent, {
+  //     accounts: {
+  //       tokenMint: mintPubkey,
+  //       tokenVault: vaultPubkey,
+  //       stakingAccount: stakingPubkey,
+  //       initializer: provider.wallet.publicKey,
+  //       systemProgram: anchor.web3.SystemProgram.programId,
+  //       tokenProgram: TOKEN_PROGRAM_ID,
+  //       rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+  //     },
+  //   })
+  // } catch(e) {
   //   console.log(e);
   // }
-  const lockTime = new anchor.BN(3600 * 24 * 8 * 7) // 8 weeks
-  const fee_percent = 250;
+
+  // updateLockTime
+  let new_lockTime = new anchor.BN(3600 * 24 * 7 * 12) // 12 weeks
 
   try {
-    await program.rpc.initialize(vaultBump, stakingBump, lockTime, fee_percent, {
+    await program.rpc.updateLockTime(stakingBump, new_lockTime, {
       accounts: {
-        tokenMint: mintPubkey,
-        tokenVault: vaultPubkey,
-        stakingAccount: stakingPubkey,
         initializer: provider.wallet.publicKey,
-        systemProgram: anchor.web3.SystemProgram.programId,
-        tokenProgram: TOKEN_PROGRAM_ID,
-        rent: anchor.web3.SYSVAR_RENT_PUBKEY,
+        stakingAccount: stakingPubkey,
       },
     })
   } catch(e) {
+    console.log(e);
+  }
+
+  console.log('After');
+  try {
+    let stakingAccount = await program.account.stakingAccount.fetch(
+      stakingPubkey
+    );
+    console.log('stakingAccount', stakingAccount);
+  } catch (e) {
     console.log(e);
   }
 }
