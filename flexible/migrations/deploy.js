@@ -65,7 +65,7 @@ module.exports = async function (provider) {
   // }
 
   // updateLockTime
-  let new_lockTime = new anchor.BN(3600 * 24 * 7 * 12) // 12 weeks
+  let new_lockTime = new anchor.BN(3600 * 24 * 7 * 8) // 8 weeks
 
   try {
     await program.rpc.updateLockTime(stakingBump, new_lockTime, {
@@ -77,17 +77,17 @@ module.exports = async function (provider) {
   } catch(e) {
     console.log(e);
   }
-
-  try {
-    await program.rpc.updateFeePercent(stakingBump, 200, {
-      accounts: {
-        initializer: provider.wallet.publicKey,
-        stakingAccount: stakingPubkey,
-      },
-    })
-  } catch(e) {
-    console.log(e);
-  }
+  //
+  // try {
+  //   await program.rpc.updateFeePercent(stakingBump, 200, {
+  //     accounts: {
+  //       initializer: provider.wallet.publicKey,
+  //       stakingAccount: stakingPubkey,
+  //     },
+  //   })
+  // } catch(e) {
+  //   console.log(e);
+  // }
 
   console.log('After');
   try {

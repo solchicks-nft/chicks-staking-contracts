@@ -47,3 +47,5 @@ spl-token transfer cxxShYRVcepDudXhe7U62QHvw8uBJoKFifmzggGKVC2 100 4cjY4z5gGeEWR
 
 #### Vault account
 https://explorer.solana.com/address/4cjY4z5gGeEWR22H1CmBTk2JwDQVG2az6tExFTBaM4GT
+
+https://solscan.io/account/4cjY4z5gGeEWR22H1CmBTk2JwDQVG2az6tExFTBaM4GT#splTransfer
