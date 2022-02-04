@@ -28,3 +28,17 @@ Note: please check if solana is enough (over 6 sol)
 
 8. anchor migrate
 ```
+
+### Transfer Token
+#### For dev
+```
+spl-token transfer FUnRfJAJiTtpSGP9uP5RtFm4QPsYUPTVgSMoYrgVyNzQ 100 C7aNpsGD3wtxnP69EN2NWe2KvkPh3XDuu65sPPMCHqxM
+```
+
+#### For live
+```
+spl-token transfer cxxShYRVcepDudXhe7U62QHvw8uBJoKFifmzggGKVC2 100 4cjY4z5gGeEWR22H1CmBTk2JwDQVG2az6tExFTBaM4GT
+```
+
+#### Vault account
+https://explorer.solana.com/address/4cjY4z5gGeEWR22H1CmBTk2JwDQVG2az6tExFTBaM4GT
