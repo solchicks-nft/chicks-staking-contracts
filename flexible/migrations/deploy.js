@@ -78,6 +78,17 @@ module.exports = async function (provider) {
     console.log(e);
   }
 
+  try {
+    await program.rpc.updateFeePercent(stakingBump, 200, {
+      accounts: {
+        initializer: provider.wallet.publicKey,
+        stakingAccount: stakingPubkey,
+      },
+    })
+  } catch(e) {
+    console.log(e);
+  }
+
   console.log('After');
   try {
     let stakingAccount = await program.account.stakingAccount.fetch(
