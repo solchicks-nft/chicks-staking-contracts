@@ -5,17 +5,18 @@ use anchor_spl::token::{self, Mint, Token, TokenAccount};
 use std::convert::TryInto;
 
 #[cfg(not(feature = "local-testing"))]
-declare_id!("6BWBw6SNMjYYQ2BB2BA8KxcZrifExt76MguDPg4ktdXW");
-// declare_id!("XASp8U7ZSJ9sJfUaMKk5dxuw3Hf4xkLPBcoHZ4seoC1"); // for dev net
+// declare_id!("6BWBw6SNMjYYQ2BB2BA8KxcZrifExt76MguDPg4ktdXW");
+declare_id!("XASp8U7ZSJ9sJfUaMKk5dxuw3Hf4xkLPBcoHZ4seoC1"); // for dev net
 #[cfg(feature = "local-testing")]
 declare_id!("XASp8U7ZSJ9sJfUaMKk5dxuw3Hf4xkLPBcoHZ4seoC1");
 
 #[cfg(not(feature = "local-testing"))]
 pub mod constants {
-    pub const STEP_TOKEN_MINT_PUBKEY: &str = "cxxShYRVcepDudXhe7U62QHvw8uBJoKFifmzggGKVC2";
-    // pub const STEP_TOKEN_MINT_PUBKEY: &str = "FUnRfJAJiTtpSGP9uP5RtFm4QPsYUPTVgSMoYrgVyNzQ"; // for dev net
+    // pub const STEP_TOKEN_MINT_PUBKEY: &str = "cxxShYRVcepDudXhe7U62QHvw8uBJoKFifmzggGKVC2";
+    pub const STEP_TOKEN_MINT_PUBKEY: &str = "FUnRfJAJiTtpSGP9uP5RtFm4QPsYUPTVgSMoYrgVyNzQ"; // for dev net
     pub const STAKING_PDA_SEED: &[u8] = b"staking";
-    pub const HODL_SERVICE_PUBKEY: &str = "7qLPnkAJneRFoVhW58UPGjySWyEE6VTz7gvvY6fDjPVA";
+    // pub const HODL_SERVICE_PUBKEY: &str = "7qLPnkAJneRFoVhW58UPGjySWyEE6VTz7gvvY6fDjPVA";
+    pub const HODL_SERVICE_PUBKEY: &str = "5hW2Y4KGNuo8Bh6ReD2D8VT3TTcBZSsxxJmnunvRmWc9"; // for dev net
 }
 
 #[cfg(feature = "local-testing")]
@@ -239,12 +240,13 @@ pub mod chicks_staking_flexible {
         _nonce_user_staking: u8,
         handle: String,
         amount: u64,
+        start_time: u64,
     ) -> ProgramResult {
         let total_token = ctx.accounts.token_vault.amount;
         let total_x_token = ctx.accounts.staking_account.total_x_token;
         let old_price = get_price(&ctx.accounts.token_vault, &ctx.accounts.staking_account);
-        let now_ts = Clock::get().unwrap().unix_timestamp;
-        ctx.accounts.user_staking_account.start_time = now_ts as u64;
+        // let now_ts = Clock::get().unwrap().unix_timestamp;
+        ctx.accounts.user_staking_account.start_time = start_time as u64;
 
         //mint x tokens
         if total_token == 0 || total_x_token == 0 {
