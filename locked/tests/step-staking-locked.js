@@ -51,7 +51,7 @@ describe('step-staking-locked', async () => {
   let stakingPubkey;
   let stakingBump;
   let lock_time = new anchor.BN(3600 * 24 * 7 * 8); //8 weeks
-  let new_lock_time = new anchor.BN(5);
+  let new_lock_time = new anchor.BN(1);
   let pool_handle = "pool1";
   // let feePercent = 250; //new anchor.BN(250);
 
@@ -89,7 +89,7 @@ describe('step-staking-locked', async () => {
     mintPubkey = mintObject.publicKey;
 
     [vaultPubkey, vaultBump] = await anchor.web3.PublicKey.findProgramAddress(
-      [mintPubkey.toBuffer()],
+      [mintPubkey.toBuffer(), pool_handle],
       programId
     );
 
@@ -280,7 +280,7 @@ describe('step-staking-locked', async () => {
   // });
   //
   it('Redeem xToken after lock end time', async () => {
-    await sleep(6000);
+    await sleep(3000);
     console.log("xTokenFromAuthority", provider.wallet.publicKey.toString())
     console.log("vaultPubkey", vaultPubkey.toString())
     console.log("stakingPubkey", stakingPubkey.toString())

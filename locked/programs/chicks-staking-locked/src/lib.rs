@@ -194,7 +194,7 @@ pub mod chicks_staking_locked {
 
         //compute vault signer seeds
         let token_mint_key = ctx.accounts.token_mint.key();
-        let seeds = &[token_mint_key.as_ref(), &[nonce_vault]];
+        let seeds = &[token_mint_key.as_ref(), name_seed(&pool_handle), &[nonce_vault]];
         let signer = &[&seeds[..]];
 
         //transfer from vault to user
@@ -389,7 +389,7 @@ pub struct Initialize<'info> {
     payer = initializer,
     token::mint = token_mint,
     token::authority = token_vault, //the PDA address is both the vault account and the authority (and event the mint authority)
-    seeds = [ constants::STEP_TOKEN_MINT_PUBKEY.parse::<Pubkey>().unwrap().as_ref() ],
+    seeds = [ constants::STEP_TOKEN_MINT_PUBKEY.parse::<Pubkey>().unwrap().as_ref(), name_seed(&pool_handle) ],
     bump = _nonce_vault,
     )]
     ///the not-yet-created, derived token vault pubkey
@@ -455,7 +455,7 @@ pub struct Stake<'info> {
 
     #[account(
     mut,
-    seeds = [ token_mint.key().as_ref() ],
+    seeds = [ token_mint.key().as_ref(), name_seed(&pool_handle) ],
     bump = _nonce_vault,
     )]
     pub token_vault: Box<Account<'info, TokenAccount>>,
@@ -505,7 +505,7 @@ pub struct StakeByService<'info> {
 
     #[account(
     mut,
-    seeds = [ token_mint.key().as_ref() ],
+    seeds = [ token_mint.key().as_ref(), name_seed(&pool_handle) ],
     bump = _nonce_vault,
     )]
     pub token_vault: Box<Account<'info, TokenAccount>>,
@@ -545,7 +545,7 @@ pub struct Unstake<'info> {
 
     #[account(
     mut,
-    seeds = [ token_mint.key().as_ref() ],
+    seeds = [ token_mint.key().as_ref(), name_seed(&pool_handle) ],
     bump = nonce_vault,
     )]
     pub token_vault: Box<Account<'info, TokenAccount>>,
@@ -583,7 +583,7 @@ pub struct EmitPrice<'info> {
     pub token_mint: Box<Account<'info, Mint>>,
 
     #[account(
-    seeds = [ token_mint.key().as_ref() ],
+    seeds = [ token_mint.key().as_ref(), name_seed(&pool_handle) ],
     bump,
     )]
     pub token_vault: Box<Account<'info, TokenAccount>>,
@@ -604,7 +604,7 @@ pub struct EmitReward<'info> {
     pub token_mint: Box<Account<'info, Mint>>,
 
     #[account(
-    seeds = [ token_mint.key().as_ref() ],
+    seeds = [ token_mint.key().as_ref(), name_seed(&pool_handle) ],
     bump,
     )]
     pub token_vault: Box<Account<'info, TokenAccount>>,
