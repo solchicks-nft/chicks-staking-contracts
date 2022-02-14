@@ -13,8 +13,12 @@ module.exports = async function (provider) {
 
   let program = anchor.workspace.ChicksStakingLocked;
 
-  // let mintPubkey = new anchor.web3.PublicKey("AURYydfxJib1ZkTir1Jn1J9ECYUtjb6rKQVmtYaixWPP");
-  let mintPubkey = new anchor.web3.PublicKey("FUnRfJAJiTtpSGP9uP5RtFm4QPsYUPTVgSMoYrgVyNzQ");
+  let mintPubkey;
+  if (program.programId.toString() === '7ANFv22yZ6qxxg6yZjgQmaaJAQUJKjq3hJpWpjz8JJ1e') {
+    mintPubkey = new anchor.web3.PublicKey("FUnRfJAJiTtpSGP9uP5RtFm4QPsYUPTVgSMoYrgVyNzQ"); // token address
+  } else {
+    mintPubkey = new anchor.web3.PublicKey("cxxShYRVcepDudXhe7U62QHvw8uBJoKFifmzggGKVC2"); // token address
+  }
 
   const [vaultPubkey, vaultBump] = await anchor.web3.PublicKey.findProgramAddress(
     [mintPubkey.toBuffer()],
@@ -22,13 +26,15 @@ module.exports = async function (provider) {
   )
 
   const [stakingPubkey, stakingBump] =
-  await anchor.web3.PublicKey.findProgramAddress(
-    [Buffer.from(anchor.utils.bytes.utf8.encode('staking'))],
-    program.programId
-  )
-  console.log('vaultPubkey', vaultPubkey.toString());
-  console.log('stakingPubkey', stakingPubkey.toString());
+    await anchor.web3.PublicKey.findProgramAddress(
+      [Buffer.from(anchor.utils.bytes.utf8.encode('staking'))],
+      program.programId
+    )
+  console.log('program id', program.programId.toString());
+  console.log('vaultPubkey', vaultPubkey.toString(), vaultBump);
+  console.log('stakingPubkey', stakingPubkey.toString(), stakingBump);
 
+  console.log('Before');
   try {
     let stakingAccount = await program.account.stakingAccount.fetch(
       stakingPubkey
@@ -38,10 +44,18 @@ module.exports = async function (provider) {
     console.log(e);
   }
 
-  const lockEndDate = new anchor.BN("1648569600") // 2022-03-30 00:00:00
+  // init
+  const lockTime1 = new anchor.BN(3600 * 24 * 30 * 4 ) // 4 months
+  let pool_handle1 = "pool1";
+
+  const lockTime2 = new anchor.BN(3600 * 24 * 30 * 8 ) // 8 months
+  let pool_handle2 = "pool2";
+
+  const lockTime3 = new anchor.BN(3600 * 24 * 30 * 12 ) // 12 months
+  let pool_handle3 = "pool3";
 
   try {
-    await program.rpc.initialize(vaultBump, stakingBump, lockEndDate, {
+    await program.rpc.initialize(vaultBump, stakingBump, lockTime, fee_percent, {
       accounts: {
         tokenMint: mintPubkey,
         tokenVault: vaultPubkey,
@@ -55,4 +69,6 @@ module.exports = async function (provider) {
   } catch(e) {
     console.log(e);
   }
+
+
 }
