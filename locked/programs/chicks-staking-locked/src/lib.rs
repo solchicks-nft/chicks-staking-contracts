@@ -160,6 +160,7 @@ pub mod chicks_staking_locked {
         pool_handle: String,
         handle: String,
         amount: u64,
+        x_amount: u64,
     ) -> ProgramResult {
         let now_ts = Clock::get().unwrap().unix_timestamp;
         let lock_time = ctx.accounts.staking_account.lock_time;
@@ -178,13 +179,13 @@ pub mod chicks_staking_locked {
         //burn what is being sent
         ctx.accounts.staking_account.total_x_token = (ctx.accounts.staking_account.total_x_token
             as u128)
-            .checked_sub(amount as u128)
+            .checked_sub(x_amount as u128)
             .unwrap()
             .try_into()
             .unwrap();
         ctx.accounts.user_staking_account.x_token_amount = 0;
 
-        let what:u64 = (amount as u128)
+        let what:u64 = (x_amount as u128)
             .checked_mul(total_token as u128)
             .unwrap()
             .checked_div(total_x_token as u128)
@@ -207,7 +208,74 @@ pub mod chicks_staking_locked {
             },
             signer,
         );
-        token::transfer(cpi_ctx, what)?;
+
+        // transfer only original amount to user
+        let amount : u64 = (amount as u128)
+            .checked_mul(1_000_000_000)
+            .unwrap()
+            .try_into()
+            .unwrap();
+
+        let reward : u64 = (what as u128)
+            .checked_sub(amount)
+            .unwrap()
+            .try_into()
+            .unwrap();
+
+        token::transfer(cpi_ctx, amount)?;
+
+        (&mut ctx.accounts.token_vault).reload()?;
+
+        ctx.accounts.user_staking_account.amount = reward;
+
+        let new_price = get_price(&ctx.accounts.token_vault, &ctx.accounts.staking_account);
+
+        emit!(Reward {
+            deposit: ctx.accounts.user_staking_account.amount,
+            reward: reward,
+        });
+
+        Ok(())
+    }
+
+
+    pub fn reward(
+        ctx: Context<Unstake>,
+        nonce_vault: u8,
+        _nonce_staking: u8,
+        _nonce_user_staking: u8,
+        pool_handle: String,
+        handle: String
+    ) -> ProgramResult {
+        let now_ts = Clock::get().unwrap().unix_timestamp;
+        let lock_time = ctx.accounts.staking_account.lock_time;
+        let start_time = ctx.accounts.user_staking_account.start_time;
+
+        msg!("get reward - pool_handle {} - handle {}", pool_handle, handle);
+
+        if (now_ts as u64) < (start_time + 2 * lock_time) {
+            return Err(ErrorCode::NotExceedLockEndDate.into());
+        }
+
+        //compute vault signer seeds
+        let token_mint_key = ctx.accounts.token_mint.key();
+        let seeds = &[token_mint_key.as_ref(), name_seed(&pool_handle), &[nonce_vault]];
+        let signer = &[&seeds[..]];
+
+        //transfer from vault to user
+        let cpi_ctx = CpiContext::new_with_signer(
+            ctx.accounts.token_program.to_account_info(),
+            token::Transfer {
+                from: ctx.accounts.token_vault.to_account_info(),
+                to: ctx.accounts.token_to.to_account_info(),
+                authority: ctx.accounts.token_vault.to_account_info(),
+            },
+            signer,
+        );
+
+        // transfer reward amount to user
+       
+        token::transfer(cpi_ctx, ctx.accounts.user_staking_account.amount)?;
 
         (&mut ctx.accounts.token_vault).reload()?;
 
@@ -224,6 +292,7 @@ pub mod chicks_staking_locked {
 
         Ok(())
     }
+
 
     pub fn stake_by_service(
         ctx: Context<StakeByService>,

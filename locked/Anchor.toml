@@ -22,7 +22,7 @@ chicks_staking_locked = "7ANFv22yZ6qxxg6yZjgQmaaJAQUJKjq3hJpWpjz8JJ1e"
 # for devnet
 [provider]
 cluster = "devnet"
-wallet = "/home/bmstart/work/solana/keys/alice.json"
+wallet = "/home/devman/.config/solana/id.json"
 
 [scripts]
 test = "mocha -t 1000000 tests/"
