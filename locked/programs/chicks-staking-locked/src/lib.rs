@@ -67,6 +67,34 @@ pub mod chicks_staking_locked {
         Ok(())
     }
 
+    pub fn deposit(
+        ctx: Context<Deposit>,
+        _nonce_vault: u8,
+        _nonce_staking: u8,
+        pool_handle: String,
+        amount: u64,
+    ) -> ProgramResult {
+        msg!("deposit - pool_handle {} - handle {}", pool_handle, handle);
+        //transfer the users tokens to the vault
+        let cpi_ctx = CpiContext::new(
+            ctx.accounts.token_program.to_account_info(),
+            token::Transfer {
+                from: ctx.accounts.token_from.to_account_info(),
+                to: ctx.accounts.token_vault.to_account_info(),
+                authority: ctx.accounts.token_from_authority.to_account_info(),
+            },
+        );
+        token::transfer(cpi_ctx, amount)?;
+
+        // plus total token amount
+        ctx.accounts.staking_account.total_token =
+            (ctx.accounts.staking_account.total_token as u128)
+                .checked_add(amount as u128)
+                .unwrap()
+                .try_into()
+                .unwrap();
+    }
+
     pub fn stake(
         ctx: Context<Stake>,
         _nonce_vault: u8,
@@ -548,6 +576,39 @@ pub struct Stake<'info> {
     pub system_program: Program<'info, System>,
     pub token_program: Program<'info, Token>,
     pub rent: Sysvar<'info, Rent>,
+}
+
+#[derive(Accounts)]
+#[instruction(nonce_vault: u8, _nonce_staking: u8, pool_handle: String)]
+pub struct Deposit<'info> {
+    #[account(
+    address = constants::STEP_TOKEN_MINT_PUBKEY.parse::<Pubkey>().unwrap(),
+    )]
+    pub token_mint: Box<Account<'info, Mint>>,
+
+    #[account(mut)]
+    //the token account to withdraw from
+    pub token_from: Box<Account<'info, TokenAccount>>,
+
+    //the authority allowed to transfer from x_token_from
+    pub x_token_from_authority: Signer<'info>,
+
+    #[account(
+    mut,
+    seeds = [ token_mint.key().as_ref(), name_seed(&pool_handle) ],
+    bump = nonce_vault,
+    )]
+    pub token_vault: Box<Account<'info, TokenAccount>>,
+
+    #[account(
+    mut,
+    seeds = [ constants::STAKING_PDA_SEED.as_ref(), name_seed(&pool_handle)],
+    bump = _nonce_staking,
+    constraint = !staking_account.freeze_program,
+    )]
+    pub staking_account: Account<'info, StakingAccount>,
+
+    pub token_program: Program<'info, Token>,
 }
 
 #[derive(Accounts)]
