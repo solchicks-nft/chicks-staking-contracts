@@ -213,6 +213,38 @@ describe('step-staking-locked', async () => {
     );
   });
 
+  it('Reward token before lock end time', async () => {
+    console.log("xTokenFromAuthority", provider.wallet.publicKey.toString())
+    console.log("vaultPubkey", vaultPubkey.toString())
+    console.log("stakingPubkey", stakingPubkey.toString())
+    console.log("userStakingPubkey", userStakingPubkey.toString())
+    const handle1 = 'test';
+    const key1 = md5(handle1);
+    await assert.rejects(
+      async () => {
+        await program.rpc.reward(
+          vaultBump,
+          stakingBump,
+          userStakingBump,
+          pool_handle,
+          key1,
+          {
+            accounts: {
+              tokenMint: mintPubkey,
+              xTokenFromAuthority: provider.wallet.publicKey,
+              tokenVault: vaultPubkey,
+              stakingAccount: stakingPubkey,
+              userStakingAccount: userStakingPubkey,
+              tokenTo: walletTokenAccount,
+              tokenProgram: TOKEN_PROGRAM_ID,
+            },
+          }
+        );
+      },
+      { code: 6000, msg: 'Not exceed lock end date' }
+    );
+  });
+
   it('Update lock end date', async () => {
     await program.rpc.updateLockTime(stakingBump, new_lock_time, pool_handle, {
       accounts: {
