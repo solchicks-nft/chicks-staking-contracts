@@ -1,5 +1,3 @@
-///A Solana version of the xSushi contract for STEP
-/// https://github.com/sushiswap/sushiswap/blob/master/contracts/SushiBar.sol
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, Token, TokenAccount};
 use std::convert::TryInto;
@@ -273,7 +271,7 @@ pub mod chicks_staking_locked {
     }
 
     pub fn reward(
-        ctx: Context<Unstake>,
+        ctx: Context<Rewards>,
         nonce_vault: u8,
         _nonce_staking: u8,
         _nonce_user_staking: u8,
@@ -806,7 +804,7 @@ pub struct StakingAccount {
     pub freeze_program: bool
 }
 
-pub const USER_STAKE_DATA_SIZE : usize = 24; // 8 + 8
+pub const USER_STAKE_DATA_SIZE : usize = 32; // 8 + 8 + 8 + 8
 
 #[account]
 #[derive(Default)]
