@@ -12,7 +12,7 @@ const {
 let program = anchor.workspace.ChicksStakingLocked;
 console.log(program);
 
-let programId = new PublicKey('7ANFv22yZ6qxxg6yZjgQmaaJAQUJKjq3hJpWpjz8JJ1e');
+let programId = new PublicKey('AVauy78yvW2K6QUfUSfPtcxPEaT3V6W1xwGEQQSFDAPC');
 
 //Read the provider from the configured environmnet.
 //represents an outside actor
