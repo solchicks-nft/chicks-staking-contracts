@@ -74,7 +74,7 @@ pub mod chicks_staking_locked {
         pool_handle: String,
         amount: u64,
     ) -> ProgramResult {
-        msg!("deposit - pool_handle {} - handle {}", pool_handle, handle);
+        msg!("deposit - pool_handle {}, amount {}", pool_handle, amount);
         //transfer the users tokens to the vault
         let cpi_ctx = CpiContext::new(
             ctx.accounts.token_program.to_account_info(),
@@ -93,6 +93,8 @@ pub mod chicks_staking_locked {
                 .unwrap()
                 .try_into()
                 .unwrap();
+
+        Ok(())
     }
 
     pub fn stake(
@@ -442,7 +444,7 @@ pub mod chicks_staking_locked {
 const E9: u128 = 1_000_000_000;
 
 pub fn get_price<'info>(
-    vault: &Account<'info, TokenAccount>,
+    _vault: &Account<'info, TokenAccount>,
     staking: &Account<'info, StakingAccount>,
 ) -> (u64, String) {
     let total_token = staking.total_token;
@@ -590,8 +592,8 @@ pub struct Deposit<'info> {
     //the token account to withdraw from
     pub token_from: Box<Account<'info, TokenAccount>>,
 
-    //the authority allowed to transfer from x_token_from
-    pub x_token_from_authority: Signer<'info>,
+    //the authority allowed to transfer from token_from
+    pub token_from_authority: Signer<'info>,
 
     #[account(
     mut,
