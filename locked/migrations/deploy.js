@@ -14,8 +14,10 @@ module.exports = async function (provider) {
   let program = anchor.workspace.ChicksStakingLocked;
 
   let mintPubkey;
+  let isDev = false;
   if (program.programId.toString() === 'AVauy78yvW2K6QUfUSfPtcxPEaT3V6W1xwGEQQSFDAPC') {
     mintPubkey = new anchor.web3.PublicKey("FUnRfJAJiTtpSGP9uP5RtFm4QPsYUPTVgSMoYrgVyNzQ"); // token address
+    isDev = true;
   } else {
     mintPubkey = new anchor.web3.PublicKey("cxxShYRVcepDudXhe7U62QHvw8uBJoKFifmzggGKVC2"); // token address
   }
@@ -65,10 +67,10 @@ module.exports = async function (provider) {
   console.log('program id', program.programId.toString());
   console.log('vaultPubkey1', vaultPubkey1.toString(), vaultBump1);
   console.log('stakingPubkey1', stakingPubkey1.toString(), stakingBump1);
-  console.log('vaultPubkey2', vaultPubkey2.toString(), vaultBump1);
-  console.log('stakingPubkey2', stakingPubkey2.toString(), stakingBump1);
-  console.log('vaultPubkey3', vaultPubkey3.toString(), vaultBump1);
-  console.log('stakingPubkey3', stakingPubkey3.toString(), stakingBump1);
+  console.log('vaultPubkey2', vaultPubkey2.toString(), vaultBump2);
+  console.log('stakingPubkey2', stakingPubkey2.toString(), stakingBump2);
+  console.log('vaultPubkey3', vaultPubkey3.toString(), vaultBump3);
+  console.log('stakingPubkey3', stakingPubkey3.toString(), stakingBump3);
 
   // console.log('Before');
   // try {
@@ -130,5 +132,69 @@ module.exports = async function (provider) {
     console.log('Locked Pool - 3 - Done');
   } catch(e) {
     console.log(e);
+  }
+
+  if (isDev) {
+    console.log('start - updateLockTime');
+    await program.rpc.updateLockTime(
+      stakingBump1,
+      pool_handle1,
+      new anchor.BN(300),
+      {
+        accounts: {
+          initializer: provider.wallet.publicKey,
+          stakingAccount: stakingPubkey1,
+        },
+      });
+
+    try {
+      let stakingAccount1 = await program.account.stakingAccount.fetch(
+        stakingPubkey1
+      );
+      console.log('stakingAccount', stakingAccount1);
+    } catch (e) {
+      console.log(e);
+    }
+    console.log('Done pool1');
+
+    await program.rpc.updateLockTime(
+      stakingBump2,
+      pool_handle2,
+      new anchor.BN(450 ),
+      {
+      accounts: {
+        initializer: provider.wallet.publicKey,
+        stakingAccount: stakingPubkey2,
+      },
+    });
+    try {
+      let stakingAccount2 = await program.account.stakingAccount.fetch(
+        stakingPubkey2
+      );
+      console.log('stakingAccount', stakingAccount2);
+    } catch (e) {
+      console.log(e);
+    }
+    console.log('Done pool2');
+
+    await program.rpc.updateLockTime(
+      stakingBump3,
+      pool_handle3,
+      new anchor.BN(600 ),
+      {
+      accounts: {
+        initializer: provider.wallet.publicKey,
+        stakingAccount: stakingPubkey3,
+      },
+    });
+    try {
+      let stakingAccount3 = await program.account.stakingAccount.fetch(
+        stakingPubkey1
+      );
+      console.log('stakingAccount', stakingAccount3);
+    } catch (e) {
+      console.log(e);
+    }
+    console.log('Done pool3');
   }
 }
