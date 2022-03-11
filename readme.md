@@ -44,7 +44,6 @@ spl-token transfer FUnRfJAJiTtpSGP9uP5RtFm4QPsYUPTVgSMoYrgVyNzQ 100 C7aNpsGD3wtx
 ```
 spl-token transfer cxxShYRVcepDudXhe7U62QHvw8uBJoKFifmzggGKVC2 100 4cjY4z5gGeEWR22H1CmBTk2JwDQVG2az6tExFTBaM4GT
 ```
-
 #### Vault account
 https://explorer.solana.com/address/4cjY4z5gGeEWR22H1CmBTk2JwDQVG2az6tExFTBaM4GT
 

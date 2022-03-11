@@ -14,7 +14,7 @@ module.exports = async function (provider) {
   let program = anchor.workspace.ChicksStakingLocked;
 
   let mintPubkey;
-  if (program.programId.toString() === '7ANFv22yZ6qxxg6yZjgQmaaJAQUJKjq3hJpWpjz8JJ1e') {
+  if (program.programId.toString() === 'AVauy78yvW2K6QUfUSfPtcxPEaT3V6W1xwGEQQSFDAPC') {
     mintPubkey = new anchor.web3.PublicKey("FUnRfJAJiTtpSGP9uP5RtFm4QPsYUPTVgSMoYrgVyNzQ"); // token address
   } else {
     mintPubkey = new anchor.web3.PublicKey("cxxShYRVcepDudXhe7U62QHvw8uBJoKFifmzggGKVC2"); // token address
