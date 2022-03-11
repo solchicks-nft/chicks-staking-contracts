@@ -3,10 +3,11 @@ use anchor_spl::token::{self, Mint, Token, TokenAccount};
 use std::convert::TryInto;
 
 #[cfg(not(feature = "local-testing"))]
-declare_id!("6BWBw6SNMjYYQ2BB2BA8KxcZrifExt76MguDPg4ktdXW");
+declare_id!("AVauy78yvW2K6QUfUSfPtcxPEaT3V6W1xwGEQQSFDAPC"); // for main
 // declare_id!("AVauy78yvW2K6QUfUSfPtcxPEaT3V6W1xwGEQQSFDAPC"); // for dev net
+
 #[cfg(feature = "local-testing")]
-declare_id!("AVauy78yvW2K6QUfUSfPtcxPEaT3V6W1xwGEQQSFDAPC");
+declare_id!("AVauy78yvW2K6QUfUSfPtcxPEaT3V6W1xwGEQQSFDAPC"); // for local net
 
 #[cfg(not(feature = "local-testing"))]
 pub mod constants {
@@ -45,8 +46,8 @@ pub mod chicks_staking_locked {
     pub fn update_lock_time(
         ctx: Context<UpdateStakingAccountField>,
         _nonce_staking: u8,
-        new_lock_time: u64,
         pool_handle: String,
+        new_lock_time: u64,
     ) -> ProgramResult {
         msg!("update_lock_time - pool_handle {}", pool_handle);
         ctx.accounts.staking_account.lock_time = new_lock_time;
@@ -58,6 +59,7 @@ pub mod chicks_staking_locked {
         ctx: Context<FreezeProgram>,
         _nonce_staking: u8,
         pool_handle: String,
+        _tmp: u64,
     ) -> ProgramResult {
         msg!("toggle_freeze_program - pool_handle {}", pool_handle);
         ctx.accounts.staking_account.freeze_program = !ctx.accounts.staking_account.freeze_program;
@@ -180,6 +182,7 @@ pub mod chicks_staking_locked {
         _nonce_user_staking: u8,
         pool_handle: String,
         handle: String,
+        _tmp: u64,
     ) -> ProgramResult {
         let now_ts = Clock::get().unwrap().unix_timestamp;
         let lock_time = ctx.accounts.staking_account.lock_time;
@@ -276,7 +279,8 @@ pub mod chicks_staking_locked {
         _nonce_staking: u8,
         _nonce_user_staking: u8,
         pool_handle: String,
-        handle: String
+        handle: String,
+        _tmp: u64,
     ) -> ProgramResult {
         let now_ts = Clock::get().unwrap().unix_timestamp;
         let lock_time = ctx.accounts.staking_account.lock_time;
