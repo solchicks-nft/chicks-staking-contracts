@@ -3,7 +3,7 @@ use anchor_spl::token::{self, Mint, Token, TokenAccount};
 use std::convert::TryInto;
 
 #[cfg(not(feature = "local-testing"))]
-declare_id!("AVauy78yvW2K6QUfUSfPtcxPEaT3V6W1xwGEQQSFDAPC"); // for main
+declare_id!("GSA6YFJHtnPFKZUXjVH9uAQdJaPt3bWADDfbeduq9edJ"); // for main
 // declare_id!("AVauy78yvW2K6QUfUSfPtcxPEaT3V6W1xwGEQQSFDAPC"); // for dev net
 
 #[cfg(feature = "local-testing")]
@@ -13,7 +13,7 @@ declare_id!("AVauy78yvW2K6QUfUSfPtcxPEaT3V6W1xwGEQQSFDAPC"); // for local net
 pub mod constants {
     pub const STEP_TOKEN_MINT_PUBKEY: &str = "cxxShYRVcepDudXhe7U62QHvw8uBJoKFifmzggGKVC2";
     // pub const STEP_TOKEN_MINT_PUBKEY: &str = "FUnRfJAJiTtpSGP9uP5RtFm4QPsYUPTVgSMoYrgVyNzQ"; // for dev net
-pub const STAKING_PDA_SEED: &[u8] = b"staking";
+pub const STAKING_PDA_SEED: &[u8] = b"staking_v2";
     pub const HODL_SERVICE_PUBKEY: &str = "7qLPnkAJneRFoVhW58UPGjySWyEE6VTz7gvvY6fDjPVA";
     // pub const HODL_SERVICE_PUBKEY: &str = "5hW2Y4KGNuo8Bh6ReD2D8VT3TTcBZSsxxJmnunvRmWc9"; // for dev net
 }
@@ -21,7 +21,7 @@ pub const STAKING_PDA_SEED: &[u8] = b"staking";
 #[cfg(feature = "local-testing")]
 pub mod constants {
     pub const STEP_TOKEN_MINT_PUBKEY: &str = "teST1ieLrLdr4MJPZ7i8mgSCLQ7rTrPRjNnyFdHFaz9";
-    pub const STAKING_PDA_SEED: &[u8] = b"staking";
+    pub const STAKING_PDA_SEED: &[u8] = b"staking_v2";
     pub const HODL_SERVICE_PUBKEY: &str = "5hW2Y4KGNuo8Bh6ReD2D8VT3TTcBZSsxxJmnunvRmWc9";
 }
 

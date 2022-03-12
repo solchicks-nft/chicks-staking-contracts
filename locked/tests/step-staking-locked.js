@@ -52,6 +52,7 @@ describe('step-staking-locked', async () => {
   let stakingBump;
   let lock_time = new anchor.BN(3600 * 24 * 7 * 8); //8 weeks
   let new_lock_time = new anchor.BN(1);
+  const STAKING_PDA_SEED = "staking_v2";
   let pool_handle = "pool1";
   // let feePercent = 250; //new anchor.BN(250);
 
@@ -95,7 +96,7 @@ describe('step-staking-locked', async () => {
 
     [stakingPubkey, stakingBump] =
       await anchor.web3.PublicKey.findProgramAddress(
-        [Buffer.from(anchor.utils.bytes.utf8.encode('staking')), pool_handle],
+        [Buffer.from(anchor.utils.bytes.utf8.encode(STAKING_PDA_SEED)), pool_handle],
         programId
       );
 
@@ -215,6 +216,7 @@ describe('step-staking-locked', async () => {
           userStakingBump,
           pool_handle,
           key1,
+          new anchor.BN(0), // not error
           {
             accounts: {
               tokenMint: mintPubkey,
@@ -233,7 +235,11 @@ describe('step-staking-locked', async () => {
   });
 
   it('Update lock end date', async () => {
-    await program.rpc.updateLockTime(stakingBump, new_lock_time, pool_handle, {
+    await program.rpc.updateLockTime(
+      stakingBump,
+      pool_handle,
+      new_lock_time,
+      {
       accounts: {
         initializer: provider.wallet.publicKey,
         stakingAccount: stakingPubkey,
@@ -370,6 +376,7 @@ describe('step-staking-locked', async () => {
       userStakingBump,
       pool_handle,
       key1,
+      new anchor.BN(0), // not error
       {
         accounts: {
           tokenMint: mintPubkey,
@@ -488,6 +495,7 @@ describe('step-staking-locked', async () => {
       userStakingBump,
       pool_handle,
       key1,
+      new anchor.BN(0), // not error
       {
         accounts: {
           tokenMint: mintPubkey,
@@ -542,6 +550,7 @@ describe('step-staking-locked', async () => {
       userStakingBump,
       pool_handle,
       key1,
+      new anchor.BN(0), // not error
       {
         accounts: {
           tokenMint: mintPubkey,
@@ -596,6 +605,7 @@ describe('step-staking-locked', async () => {
       userStakingBump,
       pool_handle,
       key1,
+      new anchor.BN(0), // not error
       {
         accounts: {
           tokenMint: mintPubkey,
@@ -650,6 +660,7 @@ describe('step-staking-locked', async () => {
       userStakingBump,
       pool_handle,
       key1,
+      new anchor.BN(0), // not error
       {
         accounts: {
           tokenMint: mintPubkey,
@@ -704,6 +715,7 @@ describe('step-staking-locked', async () => {
       userStakingBump,
       pool_handle,
       key1,
+      new anchor.BN(0), // not error
       {
         accounts: {
           tokenMint: mintPubkey,

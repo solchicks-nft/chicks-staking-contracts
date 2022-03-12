@@ -22,6 +22,8 @@ module.exports = async function (provider) {
     mintPubkey = new anchor.web3.PublicKey("cxxShYRVcepDudXhe7U62QHvw8uBJoKFifmzggGKVC2"); // token address
   }
 
+  const STAKING_PDA_SEED = "staking_v2";
+
   const lockTime1 = new anchor.BN(3600 * 24 * 30 * 4 ) // 4 months
   let pool_handle1 = "pool1";
 
@@ -38,7 +40,7 @@ module.exports = async function (provider) {
 
   const [stakingPubkey1, stakingBump1] =
     await anchor.web3.PublicKey.findProgramAddress(
-      [Buffer.from(anchor.utils.bytes.utf8.encode('staking')), pool_handle1],
+      [Buffer.from(anchor.utils.bytes.utf8.encode(STAKING_PDA_SEED)), pool_handle1],
       program.programId
     )
 
@@ -49,7 +51,7 @@ module.exports = async function (provider) {
 
   const [stakingPubkey2, stakingBump2] =
     await anchor.web3.PublicKey.findProgramAddress(
-      [Buffer.from(anchor.utils.bytes.utf8.encode('staking')), pool_handle2],
+      [Buffer.from(anchor.utils.bytes.utf8.encode(STAKING_PDA_SEED)), pool_handle2],
       program.programId
     )
 
@@ -60,7 +62,7 @@ module.exports = async function (provider) {
 
   const [stakingPubkey3, stakingBump3] =
     await anchor.web3.PublicKey.findProgramAddress(
-      [Buffer.from(anchor.utils.bytes.utf8.encode('staking')), pool_handle3],
+      [Buffer.from(anchor.utils.bytes.utf8.encode(STAKING_PDA_SEED)), pool_handle3],
       program.programId
     )
 
